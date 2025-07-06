@@ -1,5 +1,6 @@
 import pymysql
 from typing import List, Dict, Union, Optional, Any
+from pandas import DataFrame
 
 class MySqlHelper:
     def __init__(self,host:str,user:str,password:str,database:str,port:int=3306,charset: str = 'utf8mb4'):
@@ -105,7 +106,7 @@ class MySqlHelper:
             self.connection.rollback()
             raise RuntimeError(f"批量操作失败: {str(e)}")
 
-    def execute_quick(self, Select:list, From:list, Where:str=None, Group:list=None, Having:str=None, Order:dict=None):
+    def execute_quick_query(self, Select:list, From:list, Where:str=None, Group:list=None, Having:str=None, Order:dict=None):
         """
         可以不写SQL语句,快速查找需要的数据,不支持太复杂的逻辑<br>
         Select:传入需要查询的字段的列表,以字符串形式传入<br>
@@ -142,12 +143,61 @@ class MySqlHelper:
         result = self.execute_query(sql)
         return result
         
+    def execute_insert_list(self,table:str,columns:list,data:list):
+        """
+        可以直接将列表中的数据写入Mysql中，但是要求使用正确的键<br>
+        :table:需要操作的表格
+        :columns:需要插入的列
+        :data:输入的数据,将每一条数据作为一个元组,务必保证元组中的数据和列保持相同的顺序
+        """
+
+        sql = f"INSERT INTO {table} ("
+        for t in columns:
+            sql += f'{t},'
+        sql = sql.strip(',')
+        sql += ') VALUES ('
+        N = len(columns)
+        for i in range(0,N):
+            sql += '%s,'
+        sql = sql.strip(',')
+        sql += ')'
+
+        sql += 'ON DUPLICATE KEY UPDATE '
+        for t in columns:
+            sql += f'{t} = VALUES({t}),'
+        sql = sql.strip(',')
+
+        print(sql)
+        
+        count = self.execute_many(sql=sql,params_list=data)
+        print('插入成功')
+        
+    def execute_insert_dataframe(self,data:DataFrame):
+        """
+        用于直接将dataframe格式的数据插入到mysql中去
+        :data:dataframe格式的数据,保证列和mysql中的表格一样
+        """
+        sql = f"INSERT"
+
+    def execute_update_list(self,table:str,columns:list,data:list,where:str=None):
+        """
+        可以直接将列表中的数据写入Mysql中，但是要求使用正确的键,暂时废弃<br>
+        :table:需要操作的表格
+        :columns:需要修改的列
+        :data:输入的数据,将每一条数据作为一个元组,务必保证元组中的数据和列保持相同的顺序
+        :where:被修改的远组满足的条件,直接用字符串输入,可省略
+        """
+        pass
+        sql = f"UPDATE {table} SET "
+        for i in range(0,len(columns)):
+            sql += '1'
+        
 
     def get_table_columns(self, table_name: str) -> List[str]:
         """
-        获取表的列名列表
-        :param table_name: 表名
-        :return: 列名列表
+        获取表的列名列表<br>
+        :param table_name: 表名<br>
+        :return: 列名列表<br>
         """
         sql = f"DESCRIBE {table_name}"
         result = self.execute_query(sql)
@@ -188,6 +238,7 @@ if __name__=="__main__":
     res = db.execute_query(sql)
     print(res)
 
-    res = db.execute_quick(['studentName','height'],['Student'],"height>170",Order={'height':'DESC'})
+    res = db.execute_quick_query(['studentName','height'],['Student'],"height>170",Order={'height':'DESC'})
     print(res)
 
+    db.close()
