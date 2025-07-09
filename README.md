@@ -7,7 +7,7 @@
 可以通过传入列表或者字符串直接拼接sql语句
 ### 接口介绍
 首先使用MySqlHelper类创建一个对象，执行connect用于连接数据库
-```
+```python
 db = MySqlHelper(
         host="",
         user='',
@@ -28,7 +28,7 @@ db = MySqlHelper(
 
 ### 使用案例：（如果想要测试下面的代码，可以使用仓库中的sql文件创建一个学生信息表）
 **1. 连接数据库**
-```
+```python
 db = MySqlHelper(
         host="localhost",
         user='root',
@@ -39,7 +39,7 @@ db = MySqlHelper(
     db.connect()
 ```
 **2. 执行批量插入**
-```
+```python
 sql = "INSERT INTO Student (studentName, studentNo, height) VALUES (%s, %s, %s)"
     params_list = [
     ('张三', '0000000001', 175.6),
@@ -49,19 +49,19 @@ sql = "INSERT INTO Student (studentName, studentNo, height) VALUES (%s, %s, %s)"
     count = db.execute_many(sql, params_list)
 ```
 **3. 执行查询**
-```
+```python
 sql = "SELECT studentName, height FROM Student WHERE height<170 "
     res = db.execute_query(sql)
     print(res)
 ```
 **4. 执行简单查询**
-```
+```python
 sql = "SELECT studentName, height FROM Student WHERE height<170 "
     res = db.execute_query(sql)
     print(res)
 ```
 **5. 执行大量插入**
-```
+```python
 data = [
         (1, '习近平向美国匹克球访华团回复口信', '7904198'),
         (2, '地震频发 日本第二批岛民撤离避难', '7808045'),
@@ -76,5 +76,37 @@ db.execute_insert_list('News',['item_rank','titles','hot_index'],data)
 爬取了百度热搜的前十，并且通过接口存入数据库
 既可以插入，也可以更新覆盖原本的记录
 
-## 豆瓣爬虫
-针对豆瓣的爬虫
+## Crawler
+集成了豆瓣和百度的爬虫，创建对象，然后使用函数获取网站信息，并提供直接将数据插入mysql的函数接口（要求使用mysql表格指定的列名）
+```mermaid
+flowchart LR
+对象---get---获得数据
+对象---print---打印数据
+对象---sql---存入sql
+```
+**百度热搜爬虫**
+```python
+baidu = BaiduCrawler()
+baidu.get_top10()
+baidu.print_news()
+baidu.save_to_sql(
+        table='News',
+        host="localhost",
+        user='root',
+        password="Wrz040509",
+        database="online_information",
+    )
+```
+**豆瓣电影top100爬虫**
+```python
+douban = DoubanCrawler()
+douban.get_top_100()
+douban.print_film()
+douban.save_to_sql(
+        table='Films',
+        host="localhost",
+        user='root',
+        password="Wrz040509",
+        database="online_information",
+    )
+```
