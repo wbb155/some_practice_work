@@ -171,7 +171,34 @@ class MySqlHelper:
         
         count = self.execute_many(sql=sql,params_list=data)
         print('插入成功')
+
+    def execuate_insert_dict(self,table:str,data:dict):
+        """
+        可以直接将列表中的数据写入Mysql中，但是要求使用正确的键<br>
+        :table:需要操作的表格
+        :data:输入的数据,字典的键是列,字典的值是数据组成的列表,请保证对应行的数据在列表同一位置
+        """
+        sql = f"INSERT INTO {table} ("
+        for t in data.keys():
+            sql += f'{t},'
+        sql = sql.strip(',')
+        sql += ') VALUES ('
+        N = len(data.keys())
+        for i in range(0,N):
+            sql += '%s,'
+        sql = sql.strip(',')
+        sql += ')'
+
+        sql += 'ON DUPLICATE KEY UPDATE '
+        for t in data.keys():
+            sql += f'{t} = VALUES({t}),'
+        sql = sql.strip(',')
+        data = list(zip(*data.values()))
+        print(sql)    
         
+        count = self.execute_many(sql=sql,params_list=data)
+        print('插入成功')
+
     def execute_insert_dataframe(self,data:DataFrame):
         """
         用于直接将dataframe格式的数据插入到mysql中去
@@ -242,3 +269,4 @@ if __name__=="__main__":
     print(res)
 
     db.close()
+
