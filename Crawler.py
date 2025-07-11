@@ -223,7 +223,7 @@ if __name__=='__main__':
         table='News',
         host="localhost",
         user='root',
-        password="Wrz040509",
+        password="",
         database="online_information",
     )"""
 
@@ -234,6 +234,6 @@ if __name__=='__main__':
         table='Films',
         host="localhost",
         user='root',
-        password="Wrz040509",
+        password="",
         database="online_information",
     )"""
