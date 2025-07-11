@@ -93,7 +93,7 @@ baidu.save_to_sql(
         table='News',
         host="localhost",
         user='root',
-        password="Wrz040509",
+        password="",
         database="online_information",
     )
 ```
@@ -106,7 +106,7 @@ douban.save_to_sql(
         table='Films',
         host="localhost",
         user='root',
-        password="Wrz040509",
+        password="",
         database="online_information",
     )
 ```
