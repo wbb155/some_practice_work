@@ -58,7 +58,7 @@ print(data)
 db = MySqlHelper(
     host="localhost",
     user='root',
-    password="Wrz040509",
+    password="",
     database="online_information",
 )
 
